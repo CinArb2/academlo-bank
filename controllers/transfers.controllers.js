@@ -14,6 +14,37 @@ const getAllTransfers = async (req, res) => {
   }
 }
 
+const makeTransfer = async (req, res) => {
+  try {
+    //SELECT * from users
+
+    const { recipient, sender } = req
+
+    //fields to update
+    const { amount } = req.body
+
+    const newAmountRecipient = recipient.amount + amount
+    const newAmountSender = sender.amount - amount
+
+    await recipient.update({amount: newAmountRecipient})
+    await sender.update({amount: newAmountSender})
+
+    //Simple INSERT query
+    const newTransfer = await TRANSFER.create(
+      {
+        amount,
+        senderUserId: sender.id,
+        receiverUserId: recipient.id
+      })
+
+    res.status(200).json({newTransfer});
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 module.exports = {
   getAllTransfers,
+  makeTransfer
 };
